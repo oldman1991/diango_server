@@ -13,6 +13,12 @@ class MethodHandler(object):
 
     def parse_post_data(self, req):
         assert isinstance(req, falcon.Request)
+        accept_content_type = 'application/x-www-form-urlencoded'
+        if not hasattr(req, 'content_type') or req.content_type != accept_content_type:
+            raise falcon.HTTPBadRequest(
+                title='unexpected content-type',
+                description="Expected Content-Type:{}, Received Content-Type:{}".format(accept_content_type, req.content_type)
+            )
         body = req.stream.read()
         body = body.decode('ascii')
         print(body)
@@ -28,16 +34,7 @@ class V1(MethodHandler):
     def on_post(self, req, resp):
         assert isinstance(req, falcon.Request)
         assert isinstance(resp, falcon.Response)
-
         self.parse_post_data(req)
-
-
-        # method = self.post_get_param('method')
-        # params_json = self.post_get_param('params')
-        #
-        #
-        # params = json.loads(params_json)
-
         response = {"code":1}
         response_body = json.dumps(response) + '\n'
         resp.content_type = 'application/json'
